@@ -1,181 +1,375 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Login</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in • First Class</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/J6N2MXnS4CkKb4U8C4+Q5eZ7FQJpJ6NwS8m8GmGQF5j8f9Q9W8m2q9rQxGf6bqGgS2h3rM1Xw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-      /* Base layout */
       :root {
-        --bg-start: #1452d1;  /* deep blue */
-        --bg-end: #d12b7b;    /* pink */
-        --panel: 255, 255, 255; /* rgb base for glass */
-        --panel-alpha: 0.14;
-        --panel-border: 0.28;
-        --text: #ffffff;
-        --muted: #e6e6e6;
-        --accent: rgba(255,255,255,0.75);
-        --radius: 16px;
+        --bg-start: #3e2af5;
+        --bg-end: #7a2cf8;
+        --card: rgba(255, 255, 255, 0.12);
+        --card-border: rgba(255, 255, 255, 0.18);
+        --input: rgba(255, 255, 255, 0.16);
+        --text-primary: #ffffff;
+        --text-muted: #d6d6e7;
+        --accent: #ffd166;
+        --error: #ff6b6b;
+        --focus: #a68cff;
+        --radius-lg: 18px;
+        --radius-md: 12px;
+        --shadow-elev: 0 20px 60px rgba(0, 0, 0, 0.35);
       }
 
-      html, body {
-        height: 100%;
-      }
-
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
       body {
         margin: 0;
         font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-        color: var(--text);
+        color: var(--text-primary);
+        background: radial-gradient(1200px 800px at 10% 10%, #4f38ff 0%, transparent 60%),
+          radial-gradient(900px 700px at 90% 20%, #852cff 0%, transparent 60%),
+          linear-gradient(135deg, var(--bg-start), var(--bg-end));
         display: grid;
         place-items: center;
-        background:
-          /* subtle wave lines using repeating radial gradients */
-          radial-gradient(1200px 600px at -10% 0%, rgba(255,255,255,0.06) 0 1px, transparent 1px 100%),
-          radial-gradient(1200px 600px at 110% 100%, rgba(255,255,255,0.06) 0 1px, transparent 1px 100%),
-          linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
         overflow: hidden;
       }
 
-      /* Login card */
-      .card {
-        width: min(92vw, 380px);
-        padding: 28px;
-        border-radius: var(--radius);
-        background: rgba(var(--panel), var(--panel-alpha));
-        box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        border: 1px solid rgba(var(--panel), var(--panel-border));
+      /* Floating decorative blobs */
+      .blobs {
+        position: absolute;
+        inset: -20vh -10vw;
+        pointer-events: none;
+        z-index: 0;
+        filter: blur(40px) saturate(120%);
+        opacity: 0.55;
+      }
+      .blob {
+        position: absolute;
+        width: 38vmax;
+        height: 38vmax;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, #ff72e1, transparent 55%),
+          radial-gradient(circle at 70% 70%, #6cf3ff, transparent 55%),
+          linear-gradient(135deg, #6432ff, #a12cff);
+        mix-blend-mode: screen;
+        animation: float 18s ease-in-out infinite;
+      }
+      .blob:nth-child(2) { left: 65%; top: 10%; animation-delay: -8s; }
+      .blob:nth-child(3) { left: -10%; bottom: -5%; animation-delay: -4s; }
+      .blob:nth-child(1) { left: 5%; top: 35%; }
+      @keyframes float {
+        0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+        50% { transform: translate3d(0, -20px, 0) scale(1.05); }
       }
 
-      h1 {
-        margin: 6px 0 18px 0;
-        font-size: 26px;
-        font-weight: 600;
-        text-align: center;
-        letter-spacing: 0.2px;
-      }
-
-      .field {
+      .container {
+        position: relative;
+        z-index: 2;
+        width: min(92vw, 980px);
+        margin: 0 auto;
         display: grid;
-        gap: 8px;
-        margin-bottom: 14px;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 42px;
+        align-items: center;
       }
 
-      label {
-        font-size: 13px;
-        color: var(--accent);
+      .hero {
+        padding: 24px;
+      }
+      .brand {
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        font-size: 14px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+      .headline {
+        margin: 10px 0 18px;
+        font-weight: 700;
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1.1;
+      }
+      .subtext {
+        color: var(--text-muted);
+        font-size: 15px;
+        max-width: 56ch;
       }
 
-      input[type="text"],
-      input[type="password"] {
-        height: 42px;
-        padding: 0 12px;
-        color: #ffffff;
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.25);
-        border-radius: 10px;
-        outline: none;
-        transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      .card {
+        background: var(--card);
+        border: 1px solid var(--card-border);
+        box-shadow: var(--shadow-elev);
+        backdrop-filter: blur(14px) saturate(140%);
+        -webkit-backdrop-filter: blur(14px) saturate(140%);
+        border-radius: var(--radius-lg);
+        padding: 28px;
       }
 
-      input::placeholder { color: rgba(255,255,255,0.6); }
-
-      input:focus {
-        border-color: rgba(255,255,255,0.6);
-        background: rgba(255,255,255,0.12);
-        box-shadow: 0 0 0 4px rgba(255,255,255,0.12);
-      }
-
-      .row {
+      .auth-card { width: 100%; max-width: 420px; margin-left: auto; }
+      .auth-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .auth-header h2 { margin: 0; font-size: 22px; }
+      .badge { font-size: 12px; padding: 6px 10px; border-radius: 999px; background: #1f1f2d66; border: 1px solid #ffffff24; color: var(--text-muted); }
+
+      .form { margin-top: 8px; display: grid; gap: 14px; }
+
+      .field {
+        position: relative;
+        display: grid;
         gap: 8px;
-        margin: 8px 0 16px 0;
-        color: var(--accent);
-        font-size: 13px;
       }
-
-      .row a {
-        color: var(--accent);
-        text-decoration: none;
-      }
-
-      .row a:hover { text-decoration: underline; }
-
-      .remember {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-        user-select: none;
-      }
-
-      input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-        accent-color: #ffffff;
-      }
-
-      button[type="submit"] {
+      .label { font-size: 13px; color: var(--text-muted); }
+      .input-wrap { position: relative; }
+      .input {
         width: 100%;
-        height: 44px;
-        border: 0;
-        border-radius: 999px;
-        color: #1b1b1b;
-        background: #ffffff;
-        font-weight: 600;
+        height: 46px;
+        border-radius: var(--radius-md);
+        border: 1px solid #ffffff26;
+        background: var(--input);
+        color: var(--text-primary);
+        padding: 0 42px 0 42px;
+        outline: none;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+      }
+      .input:focus {
+        border-color: #ffffff4a;
+        box-shadow: 0 0 0 4px #a68cff33;
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .input::placeholder { color: #e8e8ff88; }
+      .icon-left {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #ffffffaa;
+      }
+      .icon-right {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #ffffff88;
+        cursor: pointer;
+      }
+
+      .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .remember { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 13px; }
+      .remember input { width: 16px; height: 16px; accent-color: var(--focus); }
+      .link { color: #e9e6ff; text-decoration: none; font-size: 13px; opacity: 0.9; }
+      .link:hover { text-decoration: underline; }
+
+      .btn {
+        width: 100%;
+        height: 46px;
+        border: none;
+        border-radius: var(--radius-md);
+        background: linear-gradient(180deg, #ffe082, var(--accent));
+        color: #3a2c08;
+        font-weight: 700;
         letter-spacing: 0.2px;
         cursor: pointer;
-        transition: transform 0.06s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+        transition: transform 0.06s ease, box-shadow 0.2s ease;
+        box-shadow: 0 8px 28px rgba(255, 209, 102, 0.45);
       }
+      .btn:hover { transform: translateY(-1px); }
+      .btn:active { transform: translateY(0); box-shadow: 0 6px 16px rgba(255, 209, 102, 0.35); }
 
-      button[type="submit"]:hover { opacity: 0.95; }
-      button[type="submit"]:active { transform: translateY(1px); }
+      .below { margin-top: 10px; text-align: center; color: var(--text-muted); font-size: 13px; }
 
-      .byline {
-        margin-top: 14px;
+      .divider {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 12px;
+        color: var(--text-muted);
         font-size: 12px;
-        color: rgba(255,255,255,0.7);
-        text-align: center;
+        margin: 6px 0 2px;
+      }
+      .divider::before, .divider::after {
+        content: "";
+        height: 1px;
+        background: #ffffff24;
       }
 
-      /* Prefer reduced motion */
-      @media (prefers-reduced-motion: reduce) {
-        * { transition: none !important; }
+      .error { display: none; color: var(--error); font-size: 13px; margin-top: -4px; }
+      .field.invalid .error { display: block; }
+
+      @media (max-width: 920px) {
+        .container { grid-template-columns: 1fr; gap: 28px; padding: 22px; }
+        .auth-card { margin: 0 auto; }
+        .hero { text-align: center; }
+        .subtext { margin-inline: auto; }
       }
     </style>
   </head>
   <body>
-    <form class="card" onsubmit="event.preventDefault(); alert('Logged in!');">
-      <h1>Login</h1>
+    <div class="blobs" aria-hidden="true">
+      <div class="blob"></div>
+      <div class="blob"></div>
+      <div class="blob"></div>
+    </div>
 
-      <div class="field">
-        <label for="username">User Name</label>
-        <input id="username" name="username" type="text" placeholder="Enter your username" autocomplete="username" required />
-      </div>
+    <main class="container">
+      <section class="hero">
+        <div class="brand">First Class</div>
+        <h1 class="headline">Welcome back</h1>
+        <p class="subtext">Sign in to your account to continue. Enjoy a clean, elegant interface with a focus on clarity and comfort.</p>
+      </section>
 
-      <div class="field">
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required />
-      </div>
+      <section class="auth-card card" aria-label="Login form">
+        <div class="auth-header">
+          <h2>Sign in</h2>
+          <span class="badge">Member Access</span>
+        </div>
 
-      <div class="row">
-        <label class="remember">
-          <input type="checkbox" name="remember" />
-          <span>Remember me</span>
-        </label>
-        <a href="#" aria-label="Forgot password">Forgot?</a>
-      </div>
+        <form class="form" id="loginForm" novalidate>
+          <div class="field" id="usernameField">
+            <label class="label" for="username">Username</label>
+            <div class="input-wrap">
+              <i class="fa-regular fa-user icon-left" aria-hidden="true"></i>
+              <input id="username" name="username" class="input" type="text" placeholder="Enter your username" autocomplete="username" required />
+            </div>
+            <div class="error">Please enter your username.</div>
+          </div>
 
-      <button type="submit">Login</button>
-      <div class="byline">Demo page inspired by your mockup</div>
-    </form>
+          <div class="field" id="passwordField">
+            <label class="label" for="password">Password</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-lock icon-left" aria-hidden="true"></i>
+              <input id="password" name="password" class="input" type="password" placeholder="Enter your password" autocomplete="current-password" required minlength="6" />
+              <i class="fa-regular fa-eye icon-right" id="togglePassword" title="Show/Hide password" aria-hidden="true"></i>
+            </div>
+            <div class="error">Password must be at least 6 characters.</div>
+          </div>
+
+          <div class="row">
+            <label class="remember">
+              <input type="checkbox" id="rememberMe" />
+              Remember me
+            </label>
+            <a href="#" class="link">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn">Login</button>
+          <div class="below">No account? <a class="link" href="#">Create one</a></div>
+
+          <div class="divider" aria-hidden="true"><span>or</span></div>
+
+          <!-- Google Sign-In (configured with your client ID) -->
+          <div id="g_id_onload"
+               data-client_id="65607330549-i8pndai5ergnga3nn4pm2tsg7bgmberb.apps.googleusercontent.com"
+               data-context="signin"
+               data-ux_mode="popup"
+               data-callback="handleGoogleCredentialResponse"
+               data-auto_prompt="false">
+          </div>
+          <div class="g_id_signin"
+               data-type="standard"
+               data-shape="rectangular"
+               data-theme="outline"
+               data-text="signin_with"
+               data-size="large"
+               data-logo_alignment="left">
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script>
+      const form = document.getElementById("loginForm");
+      const username = document.getElementById("username");
+      const password = document.getElementById("password");
+      const togglePassword = document.getElementById("togglePassword");
+      const GOOGLE_CLIENT_ID = document.getElementById("g_id_onload")?.dataset.client_id || "65607330549-i8pndai5ergnga3nn4pm2tsg7bgmberb.apps.googleusercontent.com";
+
+      function setInvalid(fieldEl, invalid) {
+        if (invalid) fieldEl.classList.add("invalid");
+        else fieldEl.classList.remove("invalid");
+      }
+
+      togglePassword.addEventListener("click", () => {
+        const isHidden = password.getAttribute("type") === "password";
+        password.setAttribute("type", isHidden ? "text" : "password");
+        togglePassword.classList.toggle("fa-eye");
+        togglePassword.classList.toggle("fa-eye-slash");
+      });
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const usernameValid = username.value.trim().length > 0;
+        const passwordValid = password.value.trim().length >= 6;
+        setInvalid(document.getElementById("usernameField"), !usernameValid);
+        setInvalid(document.getElementById("passwordField"), !passwordValid);
+
+        if (usernameValid && passwordValid) {
+          // Simulate successful sign-in path
+          form.querySelector(".btn").disabled = true;
+          form.querySelector(".btn").textContent = "Signing in…";
+          setTimeout(() => {
+            alert(`Welcome, ${username.value.trim()}!`);
+            form.querySelector(".btn").disabled = false;
+            form.querySelector(".btn").textContent = "Login";
+          }, 900);
+        }
+      });
+
+      // Google Identity Services: handle ID token credential
+      function decodeJwtPayload(token) {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        return JSON.parse(jsonPayload);
+      }
+
+      window.handleGoogleCredentialResponse = async function (response) {
+        try {
+          const { credential } = response || {};
+          if (!credential) return;
+
+          // Parse ID token locally for basic profile (name, email, picture)
+          const profile = decodeJwtPayload(credential);
+
+          // Validate ID token with Google (lightweight check for demo; prefer backend verification in production)
+          const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
+          if (!res.ok) throw new Error('Invalid Google ID token');
+          const tokenInfo = await res.json();
+          if (tokenInfo.aud !== GOOGLE_CLIENT_ID) throw new Error('Audience mismatch');
+
+          alert(`Signed in with Google as ${profile.name || profile.email}`);
+
+          // Persist minimal session marker for demo purposes only
+          localStorage.setItem('fc_user', JSON.stringify({
+            provider: 'google',
+            name: profile.name,
+            email: profile.email,
+            picture: profile.picture
+          }));
+
+          // Redirect if needed
+          // window.location.href = '/index.html';
+        } catch (err) {
+          console.error('Google sign-in failed', err);
+          alert('Google sign-in failed. Please try again.');
+        }
+      };
+    </script>
   </body>
   </html>
 
